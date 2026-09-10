@@ -48,7 +48,7 @@ export class TmarsApi {
   }
 
   public async waitingFor(id: string): Promise<WaitingForModel> {
-    return this.request<WaitingForModel>("/waitingfor", { id })
+    return this.request<WaitingForModel>("/waitingfor", { id, "gameAge":"", "undoCount":"" })
   }
 
   private async request<T>(endpoint: string, params: Record<string, string>): Promise<T> {
