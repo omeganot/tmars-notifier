@@ -9,7 +9,7 @@ const gameIntervals = new Map<string, NodeJS.Timeout>()
 
 const tmarsApi = new TmarsApi()
 
-async function clearGame(gameId: string) {
+export async function clearGame(gameId: string) {
   console.log(`Clearing game ${gameId}`)
   const game = await tmarsApi.game(gameId)
   // Clear all players in the game

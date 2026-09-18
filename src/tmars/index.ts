@@ -5,6 +5,7 @@ import { env } from "../config"
 import { Phase } from "./types/phase"
 import { SimpleGameModel } from "./types/SimpleGameModel"
 import { WaitingForModel } from "./types/WaitingForModel"
+import { clearGame } from "../routines/games"
 
 type GameId = string
 type Games = {
@@ -35,6 +36,7 @@ export class TmarsApi {
 
       if (phase == Phase.END) {
         console.log(`Game ${gameId} has ended, ignoring its participants`)
+        clearGame(gameId)
         continue
       }
 
