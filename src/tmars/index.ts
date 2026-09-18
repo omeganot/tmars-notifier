@@ -36,7 +36,6 @@ export class TmarsApi {
 
       if (phase == Phase.END) {
         console.log(`Game ${gameId} has ended, ignoring its participants`)
-        clearGame(gameId)
         continue
       }
 
