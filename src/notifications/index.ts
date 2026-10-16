@@ -64,6 +64,12 @@ export async function setNotificationEngine(userName: string, engine: Notificati
   await redis.set(`notification:${userName}`, engine)
 }
 
+export async function checkNotificationEngine(userName: string): Promise<boolean> {
+  const value = await redis.get(`notification:${userName}`)
+  const hasEngine = !value ? false : true;
+  return hasEngine;
+}
+
 export async function getNotificationEngine(userName: string): Promise<NotificationEngine> {
   const value = await redis.get(`notification:${userName}`)
   if (!value) {
@@ -86,24 +92,27 @@ export async function getNotificationEndpoint(userName: string): Promise<string 
 }
 
 export async function sendNotification(userId: string, userName: string, message: string, link?: string | null): Promise<string | null> {
-  const engine = await getNotificationEngine(userName)
+  const hasEngine = await checkNotificationEngine(userName)
+  if (hasEngine) {
+    const engine = await getNotificationEngine(userName)
 
-  try {
-    const notifier = getNotifier(engine)
+    try {
+      const notifier = getNotifier(engine)
 
-    const oldNotif = await redis.get(`tmars:${userId}:notification`)
-    if (oldNotif) {
-      await deleteNotification(userName, oldNotif)
+      const oldNotif = await redis.get(`tmars:${userId}:notification`)
+      if (oldNotif) {
+        await deleteNotification(userName, oldNotif)
+      }
+
+      const notificationId = await notifier.sendNotification(userName, message, link)
+      if (notificationId) {
+        await redis.set(`tmars:${userId}:notification`, notificationId)
+      }
+      return notificationId
+    } catch (error) {
+      console.log(`Error sending notification to ${userName} using ${engine}:`)
+      return null
     }
-
-    const notificationId = await notifier.sendNotification(userName, message, link)
-    if (notificationId) {
-      await redis.set(`tmars:${userId}:notification`, notificationId)
-    }
-    return notificationId
-  } catch (error) {
-    console.log(`Error sending notification to ${userName} using ${engine}:`)
-    return null
   }
 }
 

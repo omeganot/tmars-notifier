@@ -1,5 +1,5 @@
 import { env } from "../config"
-import { sendNotification } from "../notifications"
+import { checkNotificationEngine, sendNotification } from "../notifications"
 import { redis } from "../redis"
 import { TmarsApi } from "../tmars"
 import { Phase } from "../tmars/types/phase"
@@ -50,7 +50,9 @@ async function checkGame(gameId: string) {
     }
 
     for (const user of game.players) {
-      await startPlayerRoutine(user)
+      if (await checkNotificationEngine(user.name)) {
+        await startPlayerRoutine(user)
+      }
     }
   } catch (error) {
     console.error(`Error checking game ${gameId}:`, (error as Error).message)
