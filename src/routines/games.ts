@@ -87,9 +87,9 @@ export async function routeGames()
       }
       continue
     }
-    await checkGame(gameId)
     if (!gameIntervals.has(gameId))
     {
+      await checkGame(gameId)
       const interval = setInterval(async () => checkGame(gameId), 60000)
       gameIntervals.set(gameId, interval)
     }
