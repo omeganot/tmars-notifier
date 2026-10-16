@@ -70,22 +70,23 @@ export async function routeGames()
   const games = await tmarsApi.games()
 
   for (const { gameId } of games) {
+    console.log(`Initialization, found game ${gameId}`)
+    const game = await tmarsApi.game(gameId)
+
+    if (game.players.length <= 1) {
+      console.log(`Game ${gameId} has only one player, skipping`)
+      continue
+    }
+
+    if (game.phase == Phase.END) {
+      const alreadyNotified = await redis.get(`tmars:game:${gameId}:ended`)
+      console.log(`Game ${gameId} has ended, clearing it`)
+      await clearGame(gameId)
+      continue
+    }
+    await checkGame(gameId)
     if (!gameIntervals.has(gameId))
     {
-      console.log(`Initialization, found game ${gameId}`)
-      const game = await tmarsApi.game(gameId)
-
-      if (game.players.length <= 1) {
-        console.log(`Game ${gameId} has only one player, skipping`)
-        continue
-      }
-
-      if (game.phase == Phase.END) {
-        console.log(`Game ${gameId} has ended, clearing it`)
-        await clearGame(gameId)
-        continue
-      }
-      await checkGame(gameId)
       const interval = setInterval(async () => checkGame(gameId), 60000)
       gameIntervals.set(gameId, interval)
     }
