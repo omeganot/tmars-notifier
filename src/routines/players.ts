@@ -32,10 +32,12 @@ export async function clearPlayer(user: SimplePlayerModel) {
 async function checkPlayer(user: SimplePlayerModel) {
   // console.log(`Checking player ${user.name} (${user.id})`)
   const { result } = await tmarsApi.waitingFor(user.id)
+  console.log(`Checking player ${user.name} - status: ${result}`)
 
   try {
     if (result === "GO") {
       const notificationId = await redis.get(`tmars:${user.id}:notification`)
+      console.log(`Player ${user.name} has notification status ${notificationId}`)
       if (!notificationId)
       {
         console.log(`User ${user.name} is ready to play!`)

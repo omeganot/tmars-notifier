@@ -93,6 +93,7 @@ export async function getNotificationEndpoint(userName: string): Promise<string 
 
 export async function sendNotification(userId: string, userName: string, message: string, link?: string | null): Promise<string | null> {
   const hasEngine = await checkNotificationEngine(userName)
+  console.log(`User ${userName} has engine: ${hasEngine}`)
   if (hasEngine) {
     const engine = await getNotificationEngine(userName)
 
