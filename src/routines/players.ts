@@ -56,32 +56,3 @@ async function checkPlayer(user: SimplePlayerModel) {
     return
   }
 }
-
-async function checkPlayer2(user: SimplePlayerModel) {
-  // console.log(`Checking player ${user.name} (${user.id})`)
-  const currentStatus = await redis.get(`tmars:${user.id}:status`)
-  console.log(`Current status for player ${user.name}: ${currentStatus}`)
-  try {
-    const { result } = await tmarsApi.waitingFor(user.id)
-    if (currentStatus !== result) {
-      await redis.set(`tmars:${user.id}:status`, result)
-      if (result === "GO") {
-        console.log(`User ${user.name} is ready to play!`)
-        const link = `${env.tmarsUrl}/player?id=${user.id}`
-        await sendNotification(user.id, user.name, "Your turn to play!", link)
-     // } else {
-      } else if (currentStatus === "GO") { // This could prevent a user notification from being deleted when the game ends.
-        // The waited-for player has changed away from this user — dismiss their notification
-        const notificationId = await redis.get(`tmars:${user.id}:notification`)
-        if (notificationId) {
-          console.log(`Deleting last notification ${notificationId} for ${user.name} (${user.id})`)
-          await deleteNotification(user.name, notificationId)
-          await redis.delete(`tmars:${user.id}:notification`)
-        }
-      }
-    }
-  } catch (error) {
-    console.error(`Error checking player ${user.name} (${user.id}):`, (error as Error).message)
-    return
-  }
-}

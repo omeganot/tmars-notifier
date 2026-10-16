@@ -114,6 +114,9 @@ export async function sendNotification(userId: string, userName: string, message
       return null
     }
   }
+  else {
+    return null
+  }
 }
 
 export async function deleteNotification(userName: string, notificationId: string): Promise<void> {
