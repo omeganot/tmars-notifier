@@ -35,6 +35,8 @@ async function checkGame(gameId: string) {
       console.log(`Game ${gameId} has ended`)
 
       const alreadyNotified = await redis.get(`tmars:game:${gameId}:ended`)
+      console.log(`Redis game notification state ${alreadyNotified}`)
+
       if (!alreadyNotified) {
         for (const user of game.players) {
           const link = `${env.tmarsUrl}/the-end?id=${user.id}`
