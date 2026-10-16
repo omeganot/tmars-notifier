@@ -78,15 +78,15 @@ export async function routeGames()
       continue
     }
 
-    if (game.phase == Phase.END) {
-      const alreadyNotified = await redis.get(`tmars:game:${gameId}:ended`)
-      if (!alreadyNotified)
-      {
-        console.log(`Game ${gameId} has ended, clearing it`)
-        await clearGame(gameId)
-      }
-      continue
-    }
+    // if (game.phase == Phase.END) {
+    //   const alreadyNotified = await redis.get(`tmars:game:${gameId}:ended`)
+    //   if (!alreadyNotified)
+    //   {
+    //     console.log(`Game ${gameId} has ended, clearing it`)
+    //     await clearGame(gameId)
+    //   }
+    //   continue
+    // }
     if (!gameIntervals.has(gameId))
     {
       await checkGame(gameId)
