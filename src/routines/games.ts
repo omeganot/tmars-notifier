@@ -50,7 +50,8 @@ async function checkGame(gameId: string) {
     }
 
     for (const user of game.players) {
-      if (await checkNotificationEngine(user.name)) {
+      const hasEngine = await checkNotificationEngine(user.name)
+      if (hasEngine) {
         await startPlayerRoutine(user)
       }
     }
