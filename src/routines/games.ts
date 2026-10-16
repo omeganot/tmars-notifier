@@ -3,6 +3,7 @@ import { checkNotificationEngine, sendNotification } from "../notifications"
 import { redis } from "../redis"
 import { TmarsApi } from "../tmars"
 import { Phase } from "../tmars/types/phase"
+import { SimpleGameModel } from "../tmars/types/SimpleGameModel"
 import { clearPlayer, startPlayerRoutine } from "./players"
 
 const gameIntervals = new Map<string, NodeJS.Timeout>()
@@ -25,7 +26,8 @@ async function clearGame(gameId: string) {
   }
 }
 
-async function endGame(gameId: string) {
+async function endGame(game: SimpleGameModel) {
+  const gameId = game.id
   const alreadyNotified = await redis.get(`tmars:game:${gameId}:ended`)
   console.log(`Redis game notification state ${alreadyNotified}`)
 
@@ -87,7 +89,7 @@ export async function routeGames()
       if (!alreadyNotified)
       {
         console.log(`Game ${gameId} has ended, clearing it`)
-        await endGame(gameId)
+        await endGame(game)
       }
       continue
     }
