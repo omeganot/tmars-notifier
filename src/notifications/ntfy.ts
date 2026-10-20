@@ -34,6 +34,32 @@ export async function sendNotification(userName: string, message: string, link?:
   }
 }
 
+export async function sendGameEndNotification(userName: string, gameId: string, link?: string | null): Promise<string | null> {
+  const endpoint = await getEndpoint(userName)
+  if (!endpoint) {
+    return null
+  }
+
+  // Convert the link into markdown format
+  const mdLink = link ? `[Click here](${link})` : null
+
+  console.log(`Sending Ntfy game end notification to ${userName} with link: ${link} (endpoint: ${endpoint})`)
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      body: `Game ${gameId} has ended.` + (mdLink ? `\n\n${mdLink}` : ""),
+    })
+    if (!response.ok) {
+      return null
+    }
+    const data = await response.json()
+    return data?.id ?? null
+  } catch {
+    return null
+  }
+}
+
 export async function deleteNotification(userName: string, notificationId: string): Promise<void> {
   const endpoint = await getEndpoint(userName)
   if (!endpoint) {

@@ -120,6 +120,35 @@ export async function sendNotification(userId: string, userName: string, message
   }
 }
 
+export async function sendGameEndNotification(userId: string, userName: string, gameId: string, link?: string | null): Promise<string | null> {
+  const hasEngine = await checkNotificationEngine(userName)
+  console.log(`User ${userName} has engine: ${hasEngine}`)
+  if (hasEngine) {
+    const engine = await getNotificationEngine(userName)
+
+    try {
+      const notifier = getNotifier(engine)
+
+      const oldNotif = await redis.get(`tmars:${userId}:notification`)
+      if (oldNotif) {
+        await deleteNotification(userName, oldNotif)
+      }
+
+      const notificationId = await notifier.sendGameEndNotification(userName, gameId, link)
+      // if (notificationId) {
+      //   await redis.set(`tmars:${userId}:notification`, notificationId)
+      // }
+      return notificationId
+    } catch (error) {
+      console.log(`Error sending notification to ${userName} using ${engine}:`)
+      return null
+    }
+  }
+  else {
+    return null
+  }
+}
+
 export async function deleteNotification(userName: string, notificationId: string): Promise<void> {
   const engine = await getNotificationEngine(userName)
 

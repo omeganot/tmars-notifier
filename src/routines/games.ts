@@ -1,5 +1,5 @@
 import { env } from "../config"
-import { checkNotificationEngine, sendNotification } from "../notifications"
+import { checkNotificationEngine, sendNotification, sendGameEndNotification } from "../notifications"
 import { redis } from "../redis"
 import { TmarsApi } from "../tmars"
 import { Phase } from "../tmars/types/phase"
@@ -34,7 +34,7 @@ async function endGame(game: SimpleGameModel) {
   if (!alreadyNotified) {
     for (const user of game.players) {
       const link = `${env.tmarsUrl}/the-end?id=${user.id}`
-      await sendNotification(user.id, user.name, `Game ${gameId} has ended`, link)
+      await sendGameEndNotification(user.id, gameId, `Game ${gameId} has ended`, link)
     }
   }
   await redis.set(`tmars:game:${gameId}:ended`, "true")
