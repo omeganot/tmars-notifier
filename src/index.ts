@@ -60,18 +60,9 @@ app.get("/api/notification/test", async (req, res) => {
     return res.status(400).send("Invalid query parameter")
   }
 
-  const games = await tmarsApi.games()
-  for (const { gameId } of games) {
-    const game = await tmarsApi.game(gameId)
-    for (const { id, name } of game.players) {
-      if (username === name) {
-        const link = `${env.tmarsUrl}/player?id=${id}`
-        await sendNotification(id, name, "TEST: Your turn to play!", link)
-        return res.sendStatus(200)
-      }
-    }
-  }
-  return res.sendStatus(404)
+  const link = `${env.tmarsUrl}/player?id=${1000}`
+  await sendNotification("1000", username, "TEST: Your turn to play!", link)
+  return res.sendStatus(200)
 })
 
 // Route pour servir l'application Vue.js sur /ui/*
