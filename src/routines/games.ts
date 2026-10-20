@@ -11,18 +11,22 @@ const gameIntervals = new Map<string, NodeJS.Timeout>()
 const tmarsApi = new TmarsApi()
 
 async function clearGame(gameId: string) {
-  console.log(`Clearing game ${gameId}`)
-  const game = await tmarsApi.game(gameId)
-  // Clear all players in the game
-  for (const user of game.players) {
-    await clearPlayer(user)
-  }
+  try {
+    console.log(`Clearing game ${gameId}`)
+    const game = await tmarsApi.game(gameId)
+    // Clear all players in the game
+    for (const user of game.players) {
+      await clearPlayer(user)
+    }
 
-  // Clear the game interval
-  if (gameIntervals.has(gameId)) {
-    const interval = gameIntervals.get(gameId)
-    clearInterval(interval)
-    gameIntervals.delete(gameId)
+    // Clear the game interval
+    if (gameIntervals.has(gameId)) {
+      const interval = gameIntervals.get(gameId)
+      clearInterval(interval)
+      gameIntervals.delete(gameId)
+    }
+  } catch (error) {
+    console.error(`Error checking game ${gameId}:`, (error as Error).message)
   }
 }
 
@@ -77,27 +81,29 @@ export async function routeGames()
 
   for (const { gameId } of games) {
     console.log(`Found game ${gameId}`)
-    const game = await tmarsApi.game(gameId)
+    try {
+      const game = await tmarsApi.game(gameId)
 
-    if (game.players.length <= 1) {
-      console.log(`Game ${gameId} has only one player, skipping`)
-      continue
-    }
-
-    if (game.phase == Phase.END) {
-      const alreadyNotified = await redis.get(`tmars:game:${gameId}:ended`)
-      if (!alreadyNotified)
-      {
-        console.log(`Game ${gameId} has ended, clearing it`)
-        await endGame(game)
+      if (game.players.length <= 1) {
+        console.log(`Game ${gameId} has only one player, skipping`)
+        continue
       }
-      continue
-    }
-    if (!gameIntervals.has(gameId))
-    {
-      await checkGame(gameId)
-      const interval = setInterval(async () => checkGame(gameId), 60000)
-      gameIntervals.set(gameId, interval)
+
+      if (game.phase == Phase.END) {
+        const alreadyNotified = await redis.get(`tmars:game:${gameId}:ended`)
+        if (!alreadyNotified) {
+          console.log(`Game ${gameId} has ended, clearing it`)
+          await endGame(game)
+        }
+        continue
+      }
+      if (!gameIntervals.has(gameId)) {
+        await checkGame(gameId)
+        const interval = setInterval(async () => checkGame(gameId), 60000)
+        gameIntervals.set(gameId, interval)
+      }
+    } catch (error) {
+      console.error(`Error checking game ${gameId}:`, (error as Error).message)
     }
   }
 }

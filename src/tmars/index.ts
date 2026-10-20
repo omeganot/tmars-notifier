@@ -61,7 +61,11 @@ export class TmarsApi {
     if (!result.ok) {
       console.log(`Failed to fetch ${endpoint} with params ${JSON.stringify(params)}; HTTP Result: ${result.status} ${result.statusText}`)
     }
-    const data = await result.json()
-    return data as T
+    else
+    {
+      const data = await result.json()
+      return data as T
+    }
+    return null as T
   }
 }
