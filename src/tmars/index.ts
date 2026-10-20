@@ -26,21 +26,25 @@ export class TmarsApi {
     const participants: Set<string> = new Set()
 
     for (const { gameId } of games) {
-      const { players, phase } = await this.game(gameId)
+      try {
+        const { players, phase } = await this.game(gameId)
 
-      if (players.length <= 1) {
-        console.log(`Game ${gameId} has only one player, skipping`)
-        continue
-      }
+        if (players.length <= 1) {
+          console.log(`Game ${gameId} has only one player, skipping`)
+          continue
+        }
 
-      if (phase == Phase.END) {
-        console.log(`Game ${gameId} has ended, ignoring its participants`)
-        continue
-      }
+        if (phase == Phase.END) {
+          console.log(`Game ${gameId} has ended, ignoring its participants`)
+          continue
+        }
 
-      const names = players.map((p) => p.name)
-      for (const name of names) {
-        participants.add(name)
+        const names = players.map((p) => p.name)
+        for (const name of names) {
+          participants.add(name)
+        }
+      } catch (error) {
+        console.error(`Error checking game ${gameId}:`, (error as Error).message)
       }
     }
 
