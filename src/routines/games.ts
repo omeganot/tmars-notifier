@@ -1,5 +1,5 @@
 import { env } from "../config"
-import { checkNotificationEngine, sendNotification, sendGameEndNotification } from "../notifications"
+import { checkNotificationEngine, sendGameEndNotification } from "../notifications"
 import { redis } from "../redis"
 import { TmarsApi } from "../tmars"
 import { Phase } from "../tmars/types/phase"
